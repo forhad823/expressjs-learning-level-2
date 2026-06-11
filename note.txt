@@ -1,0 +1,109 @@
+npm i -D tsx 
+tsx = TypeScript Execute
+
+// app.ts এর মধ্যে api endpoint create করেছে।    
+
+// মডুলার প্যাটার্নের মধ্যে প্রত্যেকটা features কে বলা হয় module.
+
+npx neonctl@latest init       // didn't run that.
+
+Connection string:
+postgresql://neondb_owner:npg_XsiUao4Wgu5R@ep-wild-art-aqkgil7c.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require
+
+##. How ETag Caching Works in Express status: 200 ok, 304 not modified   
+When you send a response in Express using functions like  res.json()  or       
+  res.send() :                                                   
+  1. Express automatically hashes the response body (your JSON object in         
+  server.ts) and generates a unique identifier called an ETag (Entity Tag). 
+  2. It sends this  ETag  value to the browser inside the response header.       
+  3. The next time the browser requests  / , it sends the  If-None-Match  header 
+  containing that ETag.                                                          
+  4. Express intercepts the request, generates a new ETag hash for the current   
+  response, and compares it to the browser's  If-None-Match  header.             
+  5. Since the content is exactly the same, they match. Express overrides your   
+  status code of  200  and returns a  304 Not Modified  response with an empty   
+  body to save network bandwidth.                                                
+  ──────                              
+
+
+
+
+  error: value too long for type character varying(20)
+      at E:\code and relavent documets\ph zankar mahbub\level-2-nextl-level-web-
+  7\mission-2\express-learning\node_modules\pg-pool\index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async <anonymous> (E:\code and relavent documets\ph zankar mahbub\level-2-
+  nextl-level-web-7\mission-2\express-learning\src\server.ts:55:18)
+
+● Read(E:/code and relavent docume.../express-learning/src/server.ts) (ctrl+o to expand)
+
+  ### What went wrong                                                             
+                                                                                  
+  In your table schema inside the server.ts function, the  name ,  email ,   
+  and  password  columns are limited to a maximum of 20 characters:               
+                                                                                  
+    name VARCHAR(20),                                                             
+    email VARCHAR(20) NOT NULL,                                                   
+    password VARCHAR(20) NOT NULL,                                                
+                                                                                  
+  During the POST request in server.ts, one of the values (e.g., the  email  
+  or  password ) provided in the request body exceeded this 20-character limit,   
+  causing PostgreSQL to reject the query.                                         
+  ──────                                                                          
+  ### How to fix it                                                               
+                                                                                  
+  You should increase the character limit for those fields in your database table 
+  (e.g., using  VARCHAR(255)  or  TEXT ).                                         
+                                                                                  
+  1. Alter the existing columns in your database:                                 
+  Run the following SQL commands in your database console/GUI:                    
+    ALTER TABLE users ALTER COLUMN email TYPE VARCHAR(255);                       
+    ALTER TABLE users ALTER COLUMN password TYPE VARCHAR(255);                    
+    ALTER TABLE users ALTER COLUMN name TYPE VARCHAR(100);                        
+  process:
+  --------------------------------
+    ### Step 2: Select Your Project                                                                              
+                                                                                                               
+  1. In the Neon dashboard, select the project that corresponds to your database connection string (look for   
+  the project name matching  ep-wild-art-aqkgil7c ).                                                           
+                                                                                                               
+  ### Step 3: Open the SQL Editor                                                                              
+                                                                                                               
+  1. In the left-hand navigation sidebar, click on the SQL Editor option (it has a terminal/code console icon  
+  >_ ).                                                                                                        
+                                                                                                               
+  ### Step 4: Configure the Connection Settings (Top bar of the SQL Editor)                                    
+                                                                                                               
+  Make sure the dropdown settings at the top of your editor match your configuration:                          
+                                                                                                               
+  • Database:  neondb                                                                                          
+  • Role:  neondb_owner  (or the owner role used in server.ts)                                            
+                                                                                                               
+  ### Step 5: Paste and Run the SQL Commands                                                                   
+                                                                                                               
+  1. Copy and paste the following SQL block into the query editor textbox:
+    ALTER TABLE users ALTER COLUMN email TYPE VARCHAR(255);
+    ALTER TABLE users ALTER COLUMN password TYPE VARCHAR(255);
+    ALTER TABLE users ALTER COLUMN name TYPE VARCHAR(100);
+  
+  2. Click the green Run button at the top right (or press  Ctrl + Enter  /  Cmd + Enter ).
+  3. You will see a success message in the console output below the editor saying something like  ALTER TABLE  
+  query returned successfully .
+  ──────
+  ### Alternative: CLI method (using  neonctl )
+  
+  Since you have  neonctl  initialized in note.txt, you can also run SQL queries directly from your      
+  terminal if you prefer:
+  
+    npx neonctl sql --query "ALTER TABLE users ALTER COLUMN email TYPE VARCHAR(255); ALTER TABLE users ALTER   
+  COLUMN password TYPE VARCHAR(255); ALTER TABLE users ALTER COLUMN name TYPE VARCHAR(100);" 
+  -------------------
+
+
+  2. Update the schema definition in server.ts so future table               
+  initializations use the larger limits:
+    name VARCHAR(100),
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+  
+
