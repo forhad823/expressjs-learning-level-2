@@ -1,5 +1,7 @@
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
+
+   import { createRequire } from 'module';
+   const require = createRequire(import.meta.url);
+  
 
 // src/app.ts
 import express from "express";
@@ -14,19 +16,19 @@ import { Pool } from "pg";
 import dotenv from "dotenv";
 import path from "path";
 dotenv.config({
-  path: path.join(process.cwd(), ".env"),
+  path: path.join(process.cwd(), ".env")
 });
 var config = {
   connection_string: process.env.CONNECTIONSTRING,
   port: process.env.PORT,
   secret: process.env.JWT_SECRET,
-  refresh_secret: process.env.JWT_REFRESH_SECRET,
+  refresh_secret: process.env.JWT_REFRESH_SECRET
 };
 var config_default = config;
 
 // src/db/index.ts
 var pool = new Pool({
-  connectionString: config_default.connection_string,
+  connectionString: config_default.connection_string
 });
 var initDB = async () => {
   try {
@@ -74,7 +76,7 @@ var createUserIntoDB = async (payload) => {
         INSERT INTO users(name, email, password, age, role) VALUES($1, $2, $3, $4, COALESCE($5,'user'))
         RETURNING *     
         `,
-    [name, email, hashPassword, age, role],
+    [name, email, hashPassword, age, role]
   );
   if (result.rows.length !== 0) delete result.rows[0].password;
   return result;
@@ -93,7 +95,7 @@ var getSingleUserFromDB = async (id) => {
     `
       SELECT * FROM users WHERE id=$1
       `,
-    [id],
+    [id]
   );
   if (result.rows.length !== 0) delete result.rows[0].password;
   return result;
@@ -111,7 +113,7 @@ var updateUserInDB = async (payload, id) => {
 
     WHERE id=$5 RETURNING *
     `,
-    [name, password, age, is_active, id],
+    [name, password, age, is_active, id]
   );
   if (result.rows.length !== 0) delete result.rows[0].password;
   return result;
@@ -121,7 +123,7 @@ var deleteUserFromDB = async (id) => {
     `
     DELETE FROM users WHERE id=$1  
       `,
-    [id],
+    [id]
   );
   return result;
 };
@@ -130,7 +132,7 @@ var userService = {
   getAllUsersFromDB,
   getSingleUserFromDB,
   updateUserInDB,
-  deleteUserFromDB,
+  deleteUserFromDB
 };
 
 // src/utility/sendResponse.ts
@@ -139,7 +141,7 @@ var sendResponse = (res, data) => {
     success: data.success,
     message: data.message,
     data: data.data,
-    error: data.error,
+    error: data.error
   });
 };
 var sendResponse_default = sendResponse;
@@ -152,14 +154,14 @@ var createUser = async (req, res) => {
       statusCode: 201,
       success: true,
       message: "User Created successfully!",
-      data: result.rows[0],
+      data: result.rows[0]
     });
   } catch (error2) {
     sendResponse_default(res, {
       statusCode: 500,
       success: false,
       message: error2.message,
-      error: error2,
+      error: error2
     });
   }
 };
@@ -171,13 +173,13 @@ var getAllUser = async (req, res) => {
       statusCode: 200,
       success: true,
       message: "Users Retrieved Successfully",
-      data: result.rows,
+      data: result.rows
     });
   } catch (error2) {
     res.status(500).json({
       success: false,
       message: error2.message,
-      error: error2,
+      error: error2
     });
   }
 };
@@ -189,19 +191,19 @@ var getSingleUser = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "User Not found!",
-        data: {},
+        data: {}
       });
     }
     res.status(200).json({
       success: true,
       message: "User Retrieved Successfully",
-      data: result.rows[0],
+      data: result.rows[0]
     });
   } catch (error2) {
     res.status(500).json({
       success: false,
       message: error2.message,
-      error: error2,
+      error: error2
     });
   }
 };
@@ -212,19 +214,19 @@ var updateUser = async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "User Not found!",
+        message: "User Not found!"
       });
     }
     res.status(200).json({
       success: true,
       message: "User updated successfully!",
-      data: result.rows[0],
+      data: result.rows[0]
     });
   } catch (error2) {
     res.status(500).json({
       success: false,
       message: error2.message,
-      error: error2,
+      error: error2
     });
   }
 };
@@ -236,19 +238,19 @@ var deleteUser = async (req, res) => {
     if (result.rowCount === 0) {
       return res.status(404).json({
         success: false,
-        message: "User Not found!",
+        message: "User Not found!"
       });
     }
     res.status(200).json({
       success: true,
       message: "User deleted successfully!",
-      data: {},
+      data: {}
     });
   } catch (error2) {
     res.status(500).json({
       success: false,
       message: error2.message,
-      error: error2,
+      error: error2
     });
   }
 };
@@ -257,7 +259,7 @@ var userController = {
   getAllUser,
   getSingleUser,
   updateUser,
-  deleteUser,
+  deleteUser
 };
 
 // src/middleware/auth.ts
@@ -270,33 +272,36 @@ var auth = (...roles) => {
       if (!token) {
         res.status(401).json({
           success: false,
-          message: "Unauthorized access!!",
+          message: "Unauthorized access!!"
         });
       }
-      const decoded = jwt.verify(token, config_default.secret);
+      const decoded = jwt.verify(
+        token,
+        config_default.secret
+      );
       const userData = await pool.query(
         `
         SELECT * FROM users WHERE email=$1
         `,
-        [decoded.email],
+        [decoded.email]
       );
       const user = userData.rows[0];
       if (userData.rows.length === 0) {
         res.status(404).json({
           success: false,
-          message: "User not found!",
+          message: "User not found!"
         });
       }
       if (!user?.is_active) {
         res.status(403).json({
           success: false,
-          message: "Forbidden!!",
+          message: "Forbidden!!"
         });
       }
       if (roles.length && !roles.includes(user.role)) {
         return res.status(401).json({
           success: false,
-          message: "Unauthorized!,This role have no access!",
+          message: "Unauthorized!,This role have no access!"
         });
       }
       req.user = decoded;
@@ -312,17 +317,13 @@ var auth_default = auth;
 var USER_ROLE = {
   admin: "admin",
   agent: "agent",
-  user: "user",
+  user: "user"
 };
 
 // src/modules/user/user.route.ts
 var router = Router();
 router.post("/", userController.createUser);
-router.get(
-  "/",
-  auth_default(USER_ROLE.admin, USER_ROLE.agent),
-  userController.getAllUser,
-);
+router.get("/", auth_default(USER_ROLE.admin, USER_ROLE.agent), userController.getAllUser);
 router.get("/:id", userController.getSingleUser);
 router.put("/:id", userController.updateUser);
 router.delete("/:id", userController.deleteUser);
@@ -339,7 +340,7 @@ var createProfileIntoDB = async (payload) => {
     `
     SELECT * FROM users WHERE id=$1
         `,
-    [user_id],
+    [user_id]
   );
   if (user.rows.length === 0) {
     throw new Error("User not Exist !");
@@ -348,12 +349,12 @@ var createProfileIntoDB = async (payload) => {
     `
         INSERT INTO profiles(user_id, bio, address, phone, gender) VALUES($1,$2,$3,$4,$5) RETURNING *
         `,
-    [user_id, bio, address, phone, gender],
+    [user_id, bio, address, phone, gender]
   );
   return result;
 };
 var profileService = {
-  createProfileIntoDB,
+  createProfileIntoDB
 };
 
 // src/modules/profile/profile.controller.ts
@@ -363,18 +364,18 @@ var createProfile = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Profile created Successfully",
-      data: result.rows[0],
+      data: result.rows[0]
     });
   } catch (error2) {
     res.status(500).json({
       success: false,
       message: error2.message,
-      error: error2,
+      error: error2
     });
   }
 };
 var profileController = {
-  createProfile,
+  createProfile
 };
 
 // src/modules/profile/profile.route.ts
@@ -394,7 +395,7 @@ var loginUserIntoDB = async (payload) => {
     `
         SELECT * FROM users WHERE email=$1
         `,
-    [email],
+    [email]
   );
   if (userData.rows.length === 0) {
     throw new Error("Invalid Credentials !");
@@ -409,14 +410,14 @@ var loginUserIntoDB = async (payload) => {
     name: user.name,
     role: user.role,
     is_active: user.is_active,
-    email: user.email,
+    email: user.email
   };
   const accessToken = jwt2.sign(jwtpayload, config_default.secret, {
-    expiresIn: "1d",
+    expiresIn: "1d"
   });
   const refreshToken2 = jwt2.sign(jwtpayload, config_default.refresh_secret, {
-    expiresIn: "10d",
-    // refresh token's expire period long
+    expiresIn: "10d"
+    // refresh token's expire period long 
   });
   return { accessToken, refreshToken: refreshToken2 };
 };
@@ -424,12 +425,15 @@ var generateRefreshToken = async (token) => {
   if (!token) {
     throw new Error("Unauthorized !!");
   }
-  const decoded = jwt2.verify(token, config_default.refresh_secret);
+  const decoded = jwt2.verify(
+    token,
+    config_default.refresh_secret
+  );
   const userData = await pool.query(
     `
         SELECT * FROM users WHERE email=$1
         `,
-    [decoded.email],
+    [decoded.email]
   );
   const user = userData.rows[0];
   if (userData.rows.length === 0) {
@@ -443,16 +447,16 @@ var generateRefreshToken = async (token) => {
     name: user.name,
     role: user.role,
     is_active: user.is_active,
-    email: user.email,
+    email: user.email
   };
   const accessToken = jwt2.sign(jwtpayload, config_default.secret, {
-    expiresIn: "1d",
+    expiresIn: "1d"
   });
   return { accessToken };
 };
 var authService = {
   loginUserIntoDB,
-  generateRefreshToken,
+  generateRefreshToken
 };
 
 // src/modules/auth/auth.controller.ts
@@ -463,42 +467,42 @@ var loginUser = async (req, res) => {
     res.cookie("refreshToken", refreshToken2, {
       secure: false,
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "lax"
     });
     res.status(201).json({
       success: true,
       message: "login Successful",
-      data: result,
+      data: result
     });
   } catch (error2) {
     res.status(500).json({
       success: false,
       message: error2.message,
-      error: error2,
+      error: error2
     });
   }
 };
 var refreshToken = async (req, res) => {
   try {
     const result = await authService.generateRefreshToken(
-      req.cookies.refreshToken,
+      req.cookies.refreshToken
     );
     res.status(201).json({
       success: true,
       message: "access token generated",
-      data: result,
+      data: result
     });
   } catch (error2) {
     res.status(500).json({
       success: false,
       message: error2.message,
-      error: error2,
+      error: error2
     });
   }
 };
 var authController = {
   loginUser,
-  refreshToken,
+  refreshToken
 };
 
 // src/modules/auth/auth.route.ts
@@ -514,7 +518,8 @@ var logger = (req, res, next) => {
   const log = `
 Method -> ${req.method}, Time -> ${Date.now()}, URL -> ${req.url}
 `;
-  fs.appendFile("logger.txt", log, (err) => {});
+  fs.appendFile("logger.txt", log, (err) => {
+  });
   next();
 };
 var logger_default = logger;
@@ -527,7 +532,7 @@ import cors from "cors";
 var globalErrorHandler = (err, req, res, next) => {
   res.status(500).json({
     success: false,
-    message: err.message || "Internal Server Error",
+    message: err.message || "Internal Server Error"
   });
 };
 var globalErrorHandler_default = globalErrorHandler;
@@ -541,14 +546,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(logger_default);
 app.use(
   cors({
-    origin: "http://localhost:3000/",
-    // mine is 8000 now
-  }),
+    origin: "http://localhost:3000/"
+    // for resource sharing   to front-end
+  })
 );
 app.get("/", (req, res) => {
   res.status(200).json({
     message: "Express Server",
-    Author: "Next Level",
+    Author: "Next Level"
   });
 });
 app.use("/api/users", userRoute);

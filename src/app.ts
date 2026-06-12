@@ -24,12 +24,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(logger);
 
 /* const corsOptions = {
-  origin: "http://localhost:3000/", // mine is 8000 now
+  origin: "http://localhost:3000/", // 
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 }; */
 app.use(
   cors({
-    origin: "http://localhost:3000/", // mine is 8000 now
+    origin: "http://localhost:3000/", // for resource sharing   to front-end
   }),
 );
 
