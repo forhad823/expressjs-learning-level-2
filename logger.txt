@@ -221,3 +221,11 @@ Method -> POST, Time -> 1781174603673, URL -> /api/auth/login
 Method -> POST, Time -> 1781174633834, URL -> /api/auth/login
 
 Method -> GET, Time -> 1781174668471, URL -> /api/users/
+
+Method -> GET, Time -> 1781237371370, URL -> /
+
+Method -> GET, Time -> 1781237371459, URL -> /favicon.ico
+
+Method -> GET, Time -> 1781243731076, URL -> /
+
+Method -> GET, Time -> 1781243744742, URL -> /
