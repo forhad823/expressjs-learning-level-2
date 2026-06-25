@@ -11,7 +11,7 @@ router.post("/", userController.createUser);
 
 // getting all users
 router.get("/", auth(USER_ROLE.admin, USER_ROLE.agent), userController.getAllUser);
-
+ 
 // getting a single user
 router.get("/:id", userController.getSingleUser);
 

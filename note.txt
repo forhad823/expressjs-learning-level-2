@@ -1,6 +1,10 @@
 npm i -D tsx 
 tsx = TypeScript Execute
 
+vercel + git   -> connection
+ To deploy every commit automatically,
+  connect a Git Repository (vercel.link/git (https://vercel.link/git)).
+
 // app.ts এর মধ্যে api endpoint create করেছে।    
 
 // মডুলার প্যাটার্নের মধ্যে প্রত্যেকটা features কে বলা হয় module.

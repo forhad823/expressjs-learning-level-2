@@ -4,7 +4,6 @@ import config from "../config";
 import { pool } from "../db";
 import type { ROLES } from "../types";
 
-
 const auth = (...roles: ROLES[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     console.log("roles- auth.ts:7 ", roles); // []
@@ -14,7 +13,7 @@ const auth = (...roles: ROLES[]) => {
       // 2. Verify the token
       // 3. Find the user into database
       // 4. If the user active or not?
-
+      console.log("test-17-auth.ts-middleware", req);
       const token = req.headers.authorization;
       if (!token) {
         res.status(401).json({
@@ -28,6 +27,7 @@ const auth = (...roles: ROLES[]) => {
         config.secret as string,
       ) as JwtPayload;
 
+      console.log("test-31-auth.ts-middleware", decoded);
       const userData = await pool.query(
         `
         SELECT * FROM users WHERE email=$1
@@ -62,7 +62,7 @@ const auth = (...roles: ROLES[]) => {
         });
       }
 
-      req.user = decoded; // req: {user : {}}
+      req.user = decoded; // req: {user : {}}, এর মাধ্যমে আমরা request এ decoded payload টা controller এ পাঠিয়ে দিচ্ছি যাতে সেখান থেকে আমরা access করতে পারি।
 
       next();
     } catch (error) {

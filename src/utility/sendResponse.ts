@@ -13,7 +13,7 @@ const sendResponse = (res: Response, data: any) => {
     success: data.success,
     message: data.message,
     data: data.data,
-    error: data.error,
+    errors: data.error,
   });
 };
 
